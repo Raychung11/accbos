@@ -1,0 +1,17 @@
+# ACCBOS — root .htaccess
+# Tighten access to sensitive folders.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny direct access to config/, includes/, connectors/, database/, logs/
+    RewriteRule ^(config|includes|connectors|database|logs)(/|$) - [F,L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Block dotfiles
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

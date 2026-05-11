@@ -1,0 +1,93 @@
+/* ACCBOS — Accounting Connector for BOS
+ * Theme: white background, purple/blue accent, professional SaaS feel.
+ */
+
+:root {
+    --accbos-primary: #5b3df5;
+    --accbos-primary-dark: #4127c5;
+    --accbos-accent: #3b82f6;
+    --accbos-muted: #6c757d;
+    --accbos-soft-bg: #f5f6fa;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                 Arial, "Noto Sans", sans-serif;
+    color: #1f2937;
+    background-color: var(--accbos-soft-bg);
+}
+
+.accbos-navbar {
+    background: linear-gradient(90deg, var(--accbos-primary) 0%, var(--accbos-accent) 100%);
+}
+.accbos-navbar .navbar-brand,
+.accbos-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.92);
+}
+.accbos-navbar .nav-link.active,
+.accbos-navbar .nav-link:hover {
+    color: #fff;
+    font-weight: 600;
+}
+
+.accbos-btn-primary,
+.btn.accbos-btn-primary {
+    background-color: var(--accbos-primary);
+    border-color: var(--accbos-primary);
+    color: #fff;
+}
+.accbos-btn-primary:hover,
+.btn.accbos-btn-primary:hover {
+    background-color: var(--accbos-primary-dark);
+    border-color: var(--accbos-primary-dark);
+    color: #fff;
+}
+
+.accbos-stat-card {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 0.75rem;
+}
+.accbos-stat-card .card-body {
+    padding: 1rem 1.25rem;
+}
+
+.card {
+    border-radius: 0.75rem;
+    border-color: #e5e7eb;
+}
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.65rem 0.75rem;
+}
+
+.accbos-login-bg {
+    background: linear-gradient(135deg, #5b3df5 0%, #3b82f6 100%);
+}
+.accbos-login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 1rem;
+}
+
+pre {
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    max-height: 400px;
+    overflow: auto;
+}
+
+.badge {
+    font-weight: 500;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+}

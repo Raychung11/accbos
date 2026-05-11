@@ -1,0 +1,14 @@
+/logs/*.log
+/logs/*
+!/logs/.htaccess
+
+# Local environment overrides
+.env
+.env.local
+config/db_config.local.php
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
