@@ -17,9 +17,11 @@ const APP_VERSION     = '1.0.0-phase1';
 const APP_TIMEZONE    = 'Asia/Kuala_Lumpur';
 
 // Base URL helpers. Override APP_BASE_URL in environment if required.
+// Default is '' (deployed at site root, e.g. public_html/).
+// If you upload into a subfolder such as public_html/accbos, set ACCBOS_BASE_URL=/accbos.
 $appBaseUrl = getenv('ACCBOS_BASE_URL');
-if ($appBaseUrl === false || $appBaseUrl === '') {
-    $appBaseUrl = '/accbos';
+if ($appBaseUrl === false) {
+    $appBaseUrl = '';
 }
 define('APP_BASE_URL', rtrim($appBaseUrl, '/'));
 
