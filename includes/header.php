@@ -71,6 +71,7 @@ $flash      = function_exists('flash_pull') ? flash_pull() : [];
                             Role: <?= e($admin['username'] !== '' ? ($_SESSION['admin_role'] ?? 'admin') : '-') ?>
                         </span></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="<?= e(url('/admin/change_password.php')) ?>">Change password</a></li>
                         <li><a class="dropdown-item" href="<?= e(url('/admin/logout.php')) ?>">Sign out</a></li>
                     </ul>
                 </li>
