@@ -49,6 +49,10 @@ require __DIR__ . '/../includes/header.php';
     <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary"
            href="<?= e(url('/admin/sales_orders.php')) ?>">Back</a>
+        <?php if ($order['local_status'] !== 'pushed'): ?>
+            <a class="btn btn-outline-primary"
+               href="<?= e(url('/admin/sales_order_edit.php?id=' . (int)$order['id'])) ?>">Edit</a>
+        <?php endif; ?>
         <?php if (in_array($order['local_status'], ['draft','ready_to_push','failed'], true)): ?>
             <form method="post" action="<?= e(url('/admin/sales_order_push.php')) ?>" class="d-inline">
                 <?= csrf_input() ?>
