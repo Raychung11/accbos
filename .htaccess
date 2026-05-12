@@ -1,5 +1,7 @@
 # ACCBOS — root .htaccess
-# Tighten access to sensitive folders.
+# Tighten access to sensitive folders and force PHP as the front controller.
+
+DirectoryIndex index.php index.html
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
