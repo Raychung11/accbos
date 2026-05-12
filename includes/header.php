@@ -59,6 +59,11 @@ $flash      = function_exists('flash_pull') ? flash_pull() : [];
                     <a class="nav-link <?= $activeNav === 'api_logs' ? 'active' : '' ?>"
                        href="<?= e(url('/admin/api_logs.php')) ?>">API Logs</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $activeNav === 'mock_inbox' ? 'active' : '' ?>"
+                       href="<?= e(url('/mock/sql_account/inbox.php')) ?>"
+                       title="Mock SQL Account inbox (dev tool)">Mock</a>
+                </li>
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
