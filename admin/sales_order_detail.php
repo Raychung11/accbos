@@ -63,6 +63,18 @@ require __DIR__ . '/../includes/header.php';
                 </button>
             </form>
         <?php endif; ?>
+        <?php if ($order['local_status'] !== 'cancelled'): ?>
+            <form method="post" action="<?= e(url('/admin/sales_order_cancel.php')) ?>" class="d-inline">
+                <?= csrf_input() ?>
+                <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
+                <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('<?= !empty($order['accounting_doc_no'])
+                            ? 'This SO has been pushed (doc ' . e($order['accounting_doc_no']) . '). Cancelling here only marks ACCBOS — the accounting document is not voided. Continue?'
+                            : 'Cancel this sales order?' ?>');">
+                    Cancel
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 
