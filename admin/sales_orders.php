@@ -58,8 +58,12 @@ require __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h4 class="m-0">Sales Orders</h4>
-    <a class="btn btn-primary accbos-btn-primary"
-       href="<?= e(url('/admin/sales_order_create.php')) ?>">+ New Sales Order</a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary"
+           href="<?= e(url('/admin/sales_order_import.php')) ?>">Import CSV</a>
+        <a class="btn btn-primary accbos-btn-primary"
+           href="<?= e(url('/admin/sales_order_create.php')) ?>">+ New Sales Order</a>
+    </div>
 </div>
 
 <form method="get" class="row g-2 mb-3">
