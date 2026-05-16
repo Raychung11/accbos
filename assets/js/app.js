@@ -85,5 +85,38 @@
             });
             recalcAll();
         }
+
+        // --- Bulk push selection (Sales Orders list) ---
+        var selectAll = document.getElementById('selectAll');
+        var bulkBtn   = document.getElementById('bulkPushBtn');
+        var selCount  = document.getElementById('selCount');
+        if (bulkBtn) {
+            var boxes = function () {
+                return Array.prototype.slice.call(document.querySelectorAll('.bulk-cb'));
+            };
+            var refresh = function () {
+                var checked = boxes().filter(function (b) { return b.checked; });
+                bulkBtn.disabled = checked.length === 0;
+                if (selCount) {
+                    selCount.textContent = checked.length
+                        ? '· ' + checked.length + ' selected' : '';
+                }
+                if (selectAll) {
+                    var all = boxes();
+                    selectAll.checked = all.length > 0 && checked.length === all.length;
+                    selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                }
+            };
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    boxes().forEach(function (b) { b.checked = selectAll.checked; });
+                    refresh();
+                });
+            }
+            boxes().forEach(function (b) {
+                b.addEventListener('change', refresh);
+            });
+            refresh();
+        }
     });
 })();

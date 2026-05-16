@@ -43,6 +43,14 @@ $rows = $stmt->fetchAll();
 
 $companies   = fetch_companies_active();
 $hasFilters  = $companyFilter > 0 || $statusFilter !== '' || $acctStatusFilter !== '' || $search !== '';
+$returnTo    = str_replace(["\r", "\n"], '', (string)($_SERVER['REQUEST_URI'] ?? '/admin/sales_orders.php'));
+$pushable    = static fn(string $s): bool => in_array($s, ['draft', 'ready_to_push', 'failed'], true);
+$pushableCount = 0;
+foreach ($rows as $r) {
+    if ($pushable((string)$r['local_status'])) {
+        $pushableCount++;
+    }
+}
 
 $pageTitle = 'Sales Orders';
 $activeNav = 'sales_orders';
@@ -94,52 +102,74 @@ require __DIR__ . '/../includes/header.php';
     </div>
 </form>
 
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="small text-muted">
-            <?= e((string)count($rows)) ?> result<?= count($rows) === 1 ? '' : 's' ?>
-            <?= count($rows) === 200 ? ' (showing first 200)' : '' ?>
-        </span>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Reference</th>
-                    <th>Company</th>
-                    <th>Customer</th>
-                    <th>Doc Date</th>
-                    <th>Local</th>
-                    <th>Accounting</th>
-                    <th>Doc No</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($rows)): ?>
-                    <tr><td colspan="9" class="text-center text-muted py-4">
-                        No sales orders<?= $hasFilters ? ' match these filters.' : ' yet.' ?>
-                    </td></tr>
-                <?php else: foreach ($rows as $row): ?>
-                    <tr class="<?= in_array($row['local_status'], ['cancelled'], true) ? 'text-muted' : '' ?>">
-                        <td>#<?= e((string)$row['id']) ?></td>
-                        <td><?= e($row['reference_no'] ?? '') ?></td>
-                        <td><?= e($row['company_name']) ?></td>
-                        <td><?= e($row['customer_name']) ?>
-                            <span class="text-muted small">(<?= e($row['customer_code']) ?>)</span></td>
-                        <td><?= e((string)$row['doc_date']) ?></td>
-                        <td><?= status_badge((string)$row['local_status']) ?></td>
-                        <td><?= status_badge((string)$row['accounting_status']) ?></td>
-                        <td><?= e($row['accounting_doc_no'] ?? '') ?></td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary"
-                               href="<?= e(url('/admin/sales_order_detail.php?id=' . (int)$row['id'])) ?>">View</a>
-                        </td>
+<form method="post" action="<?= e(url('/admin/sales_order_bulk_push.php')) ?>" id="bulkForm"
+      onsubmit="return confirm('Push all selected sales orders now?');">
+    <?= csrf_input() ?>
+    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="small text-muted">
+                <?= e((string)count($rows)) ?> result<?= count($rows) === 1 ? '' : 's' ?>
+                <?= count($rows) === 200 ? ' (showing first 200)' : '' ?>
+                <span id="selCount" class="ms-2"></span>
+            </span>
+            <button type="submit" class="btn btn-sm btn-primary accbos-btn-primary"
+                    id="bulkPushBtn" disabled>
+                Push selected
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:36px;">
+                            <input type="checkbox" class="form-check-input" id="selectAll"
+                                   <?= $pushableCount === 0 ? 'disabled' : '' ?>
+                                   title="Select all pushable rows">
+                        </th>
+                        <th>#</th>
+                        <th>Reference</th>
+                        <th>Company</th>
+                        <th>Customer</th>
+                        <th>Doc Date</th>
+                        <th>Local</th>
+                        <th>Accounting</th>
+                        <th>Doc No</th>
+                        <th></th>
                     </tr>
-                <?php endforeach; endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (empty($rows)): ?>
+                        <tr><td colspan="10" class="text-center text-muted py-4">
+                            No sales orders<?= $hasFilters ? ' match these filters.' : ' yet.' ?>
+                        </td></tr>
+                    <?php else: foreach ($rows as $row): ?>
+                        <tr class="<?= in_array($row['local_status'], ['cancelled'], true) ? 'text-muted' : '' ?>">
+                            <td>
+                                <?php if ($pushable((string)$row['local_status'])): ?>
+                                    <input type="checkbox" class="form-check-input bulk-cb"
+                                           name="ids[]" value="<?= (int)$row['id'] ?>">
+                                <?php endif; ?>
+                            </td>
+                            <td>#<?= e((string)$row['id']) ?></td>
+                            <td><?= e($row['reference_no'] ?? '') ?></td>
+                            <td><?= e($row['company_name']) ?></td>
+                            <td><?= e($row['customer_name']) ?>
+                                <span class="text-muted small">(<?= e($row['customer_code']) ?>)</span></td>
+                            <td><?= e((string)$row['doc_date']) ?></td>
+                            <td><?= status_badge((string)$row['local_status']) ?></td>
+                            <td><?= status_badge((string)$row['accounting_status']) ?></td>
+                            <td><?= e($row['accounting_doc_no'] ?? '') ?></td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="<?= e(url('/admin/sales_order_detail.php?id=' . (int)$row['id'])) ?>">View</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+</form>
 <?php require __DIR__ . '/../includes/footer.php'; ?>
