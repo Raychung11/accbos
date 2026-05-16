@@ -5,8 +5,10 @@ require_once __DIR__ . '/../includes/auth.php';
 require_login();
 
 $pdo = db();
-$companyFilter = getInt('company_id');
-$statusFilter  = getStr('local_status');
+$companyFilter    = getInt('company_id');
+$statusFilter     = getStr('local_status');
+$acctStatusFilter = getStr('accounting_status');
+$search           = getStr('q');
 
 $conds  = [];
 $params = [];
@@ -18,9 +20,17 @@ if ($statusFilter !== '') {
     $conds[] = 'so.local_status = :local_status';
     $params[':local_status'] = $statusFilter;
 }
+if ($acctStatusFilter !== '') {
+    $conds[] = 'so.accounting_status = :accounting_status';
+    $params[':accounting_status'] = $acctStatusFilter;
+}
+if ($search !== '') {
+    $conds[] = '(so.reference_no LIKE :s OR so.customer_name LIKE :s OR so.customer_code LIKE :s OR so.accounting_doc_no LIKE :s)';
+    $params[':s'] = '%' . $search . '%';
+}
 $where = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
 
-$sql = "SELECT so.id, so.reference_no, so.customer_name, so.doc_date,
+$sql = "SELECT so.id, so.reference_no, so.customer_name, so.customer_code, so.doc_date,
                so.local_status, so.accounting_status, so.accounting_doc_no,
                c.company_name
         FROM sales_orders so
@@ -31,7 +41,8 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll();
 
-$companies = fetch_companies_active();
+$companies   = fetch_companies_active();
+$hasFilters  = $companyFilter > 0 || $statusFilter !== '' || $acctStatusFilter !== '' || $search !== '';
 
 $pageTitle = 'Sales Orders';
 $activeNav = 'sales_orders';
@@ -44,7 +55,11 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <form method="get" class="row g-2 mb-3">
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="q" value="<?= e($search) ?>"
+               placeholder="Search ref / customer / doc no">
+    </div>
+    <div class="col-md-3">
         <select name="company_id" class="form-select">
             <option value="0">All companies</option>
             <?php foreach ($companies as $c): ?>
@@ -55,23 +70,37 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <select name="local_status" class="form-select">
-            <option value="">All statuses</option>
+            <option value="">Local: all</option>
             <?php foreach (['draft','ready_to_push','pushed','failed','cancelled'] as $s): ?>
                 <option value="<?= e($s) ?>" <?= $statusFilter === $s ? 'selected' : '' ?>><?= e($s) ?></option>
             <?php endforeach; ?>
         </select>
     </div>
+    <div class="col-md-2">
+        <select name="accounting_status" class="form-select">
+            <option value="">Acct: all</option>
+            <?php foreach (['pending','success','failed'] as $s): ?>
+                <option value="<?= e($s) ?>" <?= $acctStatusFilter === $s ? 'selected' : '' ?>><?= e($s) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
     <div class="col-auto">
         <button class="btn btn-outline-secondary">Filter</button>
-        <?php if ($companyFilter > 0 || $statusFilter !== ''): ?>
+        <?php if ($hasFilters): ?>
             <a class="btn btn-link" href="<?= e(url('/admin/sales_orders.php')) ?>">Clear</a>
         <?php endif; ?>
     </div>
 </form>
 
 <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="small text-muted">
+            <?= e((string)count($rows)) ?> result<?= count($rows) === 1 ? '' : 's' ?>
+            <?= count($rows) === 200 ? ' (showing first 200)' : '' ?>
+        </span>
+    </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
@@ -89,13 +118,16 @@ require __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <?php if (empty($rows)): ?>
-                    <tr><td colspan="9" class="text-center text-muted py-4">No sales orders.</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted py-4">
+                        No sales orders<?= $hasFilters ? ' match these filters.' : ' yet.' ?>
+                    </td></tr>
                 <?php else: foreach ($rows as $row): ?>
-                    <tr>
+                    <tr class="<?= in_array($row['local_status'], ['cancelled'], true) ? 'text-muted' : '' ?>">
                         <td>#<?= e((string)$row['id']) ?></td>
                         <td><?= e($row['reference_no'] ?? '') ?></td>
                         <td><?= e($row['company_name']) ?></td>
-                        <td><?= e($row['customer_name']) ?></td>
+                        <td><?= e($row['customer_name']) ?>
+                            <span class="text-muted small">(<?= e($row['customer_code']) ?>)</span></td>
                         <td><?= e((string)$row['doc_date']) ?></td>
                         <td><?= status_badge((string)$row['local_status']) ?></td>
                         <td><?= status_badge((string)$row['accounting_status']) ?></td>
