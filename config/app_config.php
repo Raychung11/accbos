@@ -46,6 +46,19 @@ if ($cfgKey === false || $cfgKey === '') {
 }
 define('APP_KEY', $cfgKey);
 
+// Sync queue worker (cron/run_queue.php).
+// Max push attempts before a queue row is parked as permanently failed.
+const SYNC_MAX_ATTEMPTS = 5;
+// How many queue rows one worker run will process.
+const SYNC_BATCH_SIZE = 25;
+// Shared secret required when the worker is triggered over HTTP.
+// Override via env. CLI invocations (Hostinger cron) bypass this check.
+$cronToken = getenv('ACCBOS_CRON_TOKEN');
+if ($cronToken === false || $cronToken === '') {
+    $cronToken = 'change_this_cron_token_in_production';
+}
+define('SYNC_CRON_TOKEN', $cronToken);
+
 date_default_timezone_set(APP_TIMEZONE);
 
 // Apply secure defaults to session cookies before any session_start().

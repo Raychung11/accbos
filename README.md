@@ -103,6 +103,30 @@ SO Number Sync Back to BOS
 
 ---
 
+## Sync queue worker (cron)
+
+`cron/run_queue.php` retries pending sales-order pushes automatically so
+transient SQL Account failures recover without manual Retry clicks. A row
+is retried up to `SYNC_MAX_ATTEMPTS` (default 5) then parked as `failed`.
+
+**CLI cron (recommended — no token needed):**
+
+```
+*/5 * * * * /usr/bin/php /home/USER/domains/your-host/public_html/cron/run_queue.php >> /dev/null 2>&1
+```
+
+**URL cron (token required):** set `ACCBOS_CRON_TOKEN` in the environment,
+then point the cron at:
+
+```
+https://your-host/cron/run_queue.php?token=YOUR_CRON_TOKEN
+```
+
+Concurrent runs are prevented with a lock file in `logs/sync_queue.lock`.
+Tune `SYNC_MAX_ATTEMPTS` / `SYNC_BATCH_SIZE` in `config/app_config.php`.
+
+---
+
 ## Roadmap
 
 - **Phase 2** — Hardening of SO push pipeline, scheduled queue worker.
