@@ -1,0 +1,6 @@
+# /cron must stay reachable for URL-based cron (token-protected in PHP).
+Options -Indexes
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

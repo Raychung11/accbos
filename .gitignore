@@ -1,0 +1,19 @@
+/logs/*.log
+/logs/*
+!/logs/.htaccess
+
+# Mock SQL Account runtime state — keep folder, ignore generated files
+/mock/sql_account/_state/*
+!/mock/sql_account/_state/.htaccess
+!/mock/sql_account/_state/.gitkeep
+
+# Local environment overrides
+.env
+.env.local
+config/db_config.local.php
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
